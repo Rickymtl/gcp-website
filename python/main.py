@@ -1,21 +1,39 @@
 # This is a sample Python script.
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_file
 from rembg import remove
 from PIL import Image
+from io import BytesIO
+
 # Press ⌃R to execute it or replace it with your code.
 # Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
 
 app = Flask(__name__)
+
+
+# api routes
+@app.route('/', methods=["GET", "POST"])
+def upload_file():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            return 'No file uploaded', 400
+        file = request.files['file']
+        if file.filename == '':
+            return 'No file selected', 400
+        if file:
+            input_image = Image.open(file.stream)
+            output_image = remove(input_image, post_process_mask=True)
+            img_io = BytesIO()
+            output_image.save(img_io, 'PNG')
+            img_io.seek(0)
+            # return send_file(img_io, mimetype='image/png')  # Change download in separatre browser tab
+            return send_file(img_io, mimetype='image/png', as_attachment=True, download_name='_rmbg.png')
+    return render_template('multi_index.html')
+
+
+@app.route("/rmwm")
+def rmwm():
+    return 'hi'
+
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=6666, debug=True)
-    
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press ⌘F8 to toggle the breakpoint.
-
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    app.run(host='0.0.0.0', port=5600, debug=True)

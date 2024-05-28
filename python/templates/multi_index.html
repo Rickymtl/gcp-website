@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Drop Zones</title>
+    <style>
+        .drop-zone-container {
+            margin: 20px;
+            text-align: center;
+        }
+        .drop-zone {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px auto;
+            text-align: center;
+            font-size: 18px;
+            color: #aaa;
+            width: 80%;
+        }
+        .drop-zone.hover {
+            border-color: #333;
+            color: #333;
+        }
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .description {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h1 style="text-align: center;">File Drop Zones</h1>
+
+<div class="drop-zone-container">
+    <div class="title">Drop Zone 1</div>
+    <div class="description">This zone handles Action 1: Basic file info.</div>
+    <div id="drop-zone-1" class="drop-zone">Drop files here</div>
+</div>
+
+<div class="drop-zone-container">
+    <div class="title">Drop Zone 2</div>
+    <div class="description">This zone handles Action 2: Display file content.</div>
+    <div id="drop-zone-2" class="drop-zone">Drop files here</div>
+</div>
+
+<div class="drop-zone-container">
+    <div class="title">Drop Zone 3</div>
+    <div class="description">This zone handles Action 3: Count words in file.</div>
+    <div id="drop-zone-3" class="drop-zone">Drop files here</div>
+</div>
+
+<div class="drop-zone-container">
+    <div class="title">Drop Zone 4</div>
+    <div class="description">This zone handles Action 4: Convert text to uppercase.</div>
+    <div id="drop-zone-4" class="drop-zone">Drop files here</div>
+</div>
+
+<script>
+    function handleDragOver(event) {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'copy';
+        event.currentTarget.classList.add('hover');
+    }
+
+    function handleDragLeave(event) {
+        event.currentTarget.classList.remove('hover');
+    }
+
+    function handleDrop(event, action) {
+        event.preventDefault();
+        event.currentTarget.classList.remove('hover');
+        const files = event.dataTransfer.files;
+
+        if (files.length) {
+            const file = files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const contents = e.target.result;
+                performAction(action, file, contents);
+            };
+
+            reader.readAsText(file); // Read file as text for simplicity
+        }
+    }
+
+    function performAction(action, file, contents) {
+        switch (action) {
+            case 1:
+                alert(`Action 1: File name is ${file.name}`);
+                break;
+            case 2:
+                alert(`Action 2: File content is:\n${contents}`);
+                break;
+            case 3:
+                const wordCount = contents.split(/\s+/).length;
+                alert(`Action 3: The file contains ${wordCount} words.`);
+                break;
+            case 4:
+                const upperCaseContent = contents.toUpperCase();
+                alert(`Action 4: File content in uppercase:\n${upperCaseContent}`);
+                break;
+            default:
+                console.error('Unknown action');
+        }
+    }
+
+    document.getElementById('drop-zone-1').addEventListener('dragover', handleDragOver);
+    document.getElementById('drop-zone-1').addEventListener('dragleave', handleDragLeave);
+    document.getElementById('drop-zone-1').addEventListener('drop', function(event) { handleDrop(event, 1); });
+
+    document.getElementById('drop-zone-2').addEventListener('dragover', handleDragOver);
+    document.getElementById('drop-zone-2').addEventListener('dragleave', handleDragLeave);
+    document.getElementById('drop-zone-2').addEventListener('drop', function(event) { handleDrop(event, 2); });
+
+    document.getElementById('drop-zone-3').addEventListener('dragover', handleDragOver);
+    document.getElementById('drop-zone-3').addEventListener('dragleave', handleDragLeave);
+    document.getElementById('drop-zone-3').addEventListener('drop', function(event) { handleDrop(event, 3); });
+
+    document.getElementById('drop-zone-4').addEventListener('dragover', handleDragOver);
+    document.getElementById('drop-zone-4').addEventListener('dragleave', handleDragLeave);
+    document.getElementById('drop-zone-4').addEventListener('drop', function(event) { handleDrop(event, 4); });
+</script>
+
+</body>
+</html>
