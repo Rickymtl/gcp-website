@@ -1,9 +1,14 @@
 // src/components/DropZone.js
 
 import React, { useState } from 'react';
+import axios from 'axios';
+import './DropZone.css';
 
-const DropZone = ({ action, title, description }) => {
+axios.defaults.baseURL = 'http://localhost:5600';
+
+const DropZone = ({ endpoint }) => {
   const [hover, setHover] = useState(false);
+  const [file, setFile] = useState(null);
 
   const handleDragOver = (event) => {
     event.preventDefault();
@@ -20,48 +25,62 @@ const DropZone = ({ action, title, description }) => {
     const files = event.dataTransfer.files;
     if (files.length) {
       const file = files[0];
-      const reader = new FileReader();
-
-      reader.onload = (e) => {
-        const contents = e.target.result;
-        performAction(action, file, contents);
-      };
-
-      reader.readAsText(file); // Read file as text for simplicity
+      setFile(file);
+      uploadFile(file);
     }
   };
 
-  const performAction = (action, file, contents) => {
-    switch (action) {
-      case 1:
-        alert(`Action 1: File name is ${file.name}`);
-        break;
-      case 2:
-        alert(`Action 2: File content is:\n${contents}`);
-        break;
-      case 3:
-        const wordCount = contents.split(/\s+/).length;
-        alert(`Action 3: The file contains ${wordCount} words.`);
-        break;
-      case 4:
-        const upperCaseContent = contents.toUpperCase();
-        alert(`Action 4: File content in uppercase:\n${upperCaseContent}`);
-        break;
-      default:
-        console.error('Unknown action');
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setFile(file);
+      uploadFile(file);
     }
   };
+
+  const uploadFile = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await axios.post(endpoint, formData, {
+        responseType: 'blob', // Important to handle binary data
+      });
+      console.log('File uploaded successfully:', response.data);
+      downloadFile(response.data, file.name);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      alert('Error uploading file.');
+    }
+  };
+
+  const downloadFile = (blob, filename) => {
+    const url = window.URL.createObjectURL(new Blob([blob]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link); // Cleanup
+  };
+
+
 
   return (
-    <div
+    <div 
       className={`drop-zone ${hover ? 'hover' : ''}`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      <div className="title">{title}</div>
-      <div className="description">{description}</div>
-      <p>Drop files here</p>
+      <p>Drop files here or click to select files</p>
+      <input
+        type="file"
+        onChange={handleFileChange}
+        style={{ display: 'none' }}
+        id="file-upload"
+      />
+      <label htmlFor="file-upload" className="file-upload-label">Upload File</label>
     </div>
   );
 };

@@ -6,9 +6,9 @@ import DropZone from '../components/DropZone';
 const DropZonePage1 = () => {
   return (
     <div>
-      <h2>Drop Zone 1</h2>
-      <p>This zone handles Action 1: Basic file info.</p>
-      <DropZone action={1} />
+      <h2>Remove Background</h2>
+      <p>Drop image file here to remove background.</p>
+      <DropZone endpoint='/' />
     </div>
   );
 };

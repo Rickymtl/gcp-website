@@ -1,5 +1,6 @@
 # This is a sample Python script.
 from flask import Flask, render_template, request, send_file
+from flask_cors import CORS, cross_origin
 from rembg import remove
 from PIL import Image
 from io import BytesIO
@@ -8,10 +9,13 @@ from io import BytesIO
 # Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
 
 app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 
 # api routes
 @app.route('/', methods=["GET", "POST"])
+@cross_origin()
 def upload_file():
     if request.method == 'POST':
         if 'file' not in request.files:
@@ -30,9 +34,42 @@ def upload_file():
     return render_template('multi_index.html')
 
 
+@app.route('/rmbg')
+@cross_origin()
+def remove_background():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            return 'No file uploaded', 400
+        file = request.files['file']
+        if file.filename == '':
+            return 'No file selected', 400
+        if file:
+            input_image = Image.open(file.stream)
+            output_image = remove(input_image, post_process_mask=True)
+            img_io = BytesIO()
+            output_image.save(img_io, 'PNG')
+            img_io.seek(0)
+            # return send_file(img_io, mimetype='image/png')  # Change download in separatre browser tab
+            return send_file(img_io, mimetype='image/png', as_attachment=True, download_name='_rmbg.png')
+
+
 @app.route("/rmwm")
+@cross_origin()
 def rmwm():
-    return 'hi'
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            return 'No file uploaded', 400
+        file = request.files['file']
+        if file.filename == '':
+            return 'No file selected', 400
+        if file:
+            input_image = Image.open(file.stream)
+            output_image = remove(input_image, post_process_mask=True)
+            img_io = BytesIO()
+            output_image.save(img_io, 'PNG')
+            img_io.seek(0)
+            # return send_file(img_io, mimetype='image/png')  # Change download in separatre browser tab
+            return send_file(img_io, mimetype='image/png', as_attachment=True, download_name='_rmbg.png')
 
 
 if __name__ == '__main__':
