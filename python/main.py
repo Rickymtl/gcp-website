@@ -34,7 +34,7 @@ def upload_file():
     return render_template('multi_index.html')
 
 
-@app.route('/rmbg')
+@app.route('/rmbg', methods=["POST"])
 @cross_origin()
 def remove_background():
     if request.method == 'POST':
