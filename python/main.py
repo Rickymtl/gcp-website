@@ -72,5 +72,10 @@ def rmwm():
             return send_file(img_io, mimetype='image/png', as_attachment=True, download_name='_rmbg.png')
 
 
+@app.route("/get_accomp")
+@cross_origin()
+def get_accomp():
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5600, debug=True)
